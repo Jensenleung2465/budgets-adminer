@@ -1,16 +1,32 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 from cryptography.fernet import Fernet
+import os
 
 app = Flask(__name__)
 
+# Generate a new Fernet key if not exists
+def get_fernet_key():
+    key_file = 'fernet_key.key'
+    if os.path.exists(key_file):
+        with open(key_file, 'rb') as file:
+            return file.read()
+    else:
+        key = Fernet.generate_key()
+        with open(key_file, 'wb') as file:
+            file.write(key)
+        return key
+
+# Load the Fernet key
+fernet_key = get_fernet_key()
+
 # Function to encrypt and decrypt data
-def encrypt_data(data, key):
-    f = Fernet(key)
+def encrypt_data(data):
+    f = Fernet(fernet_key)
     return f.encrypt(data.encode())
 
-def decrypt_data(data, key):
-    f = Fernet(key)
+def decrypt_data(data):
+    f = Fernet(fernet_key)
     return f.decrypt(data).decode()
 
 # Create the database and necessary tables
@@ -28,7 +44,7 @@ def setup_database():
     c.execute('''CREATE TABLE IF NOT EXISTS expenses (
                     id INTEGER PRIMARY KEY,
                     user_id INTEGER,
-                    amount REAL,
+                    amount BLOB,
                     category TEXT,
                     date TEXT,
                     FOREIGN KEY(user_id) REFERENCES users(id))''')
@@ -37,7 +53,7 @@ def setup_database():
     c.execute('''CREATE TABLE IF NOT EXISTS income (
                     id INTEGER PRIMARY KEY,
                     user_id INTEGER,
-                    amount REAL,
+                    amount BLOB,
                     source TEXT,
                     date TEXT,
                     FOREIGN KEY(user_id) REFERENCES users(id))''')
@@ -46,7 +62,7 @@ def setup_database():
     c.execute('''CREATE TABLE IF NOT EXISTS debts (
                     id INTEGER PRIMARY KEY,
                     user_id INTEGER,
-                    amount REAL,
+                    amount BLOB,
                     creditor TEXT,
                     due_date TEXT,
                     FOREIGN KEY(user_id) REFERENCES users(id))''')
@@ -89,9 +105,8 @@ def add_expense():
         category = request.form['category']
         date = request.form['date']
         
-        key = b'groot'  # Example key
-        encrypted_amount = encrypt_data(amount, key)
-        encrypted_category = encrypt_data(category, key)
+        encrypted_amount = encrypt_data(amount)
+        encrypted_category = encrypt_data(category)
 
         user_id = 1  # Example user_id for testing
         
@@ -113,9 +128,8 @@ def add_income():
         source = request.form['source']
         date = request.form['date']
         
-        key = b'groot'  # Example key
-        encrypted_amount = encrypt_data(amount, key)
-        encrypted_source = encrypt_data(source, key)
+        encrypted_amount = encrypt_data(amount)
+        encrypted_source = encrypt_data(source)
 
         user_id = 1  # Example user_id for testing
         
@@ -137,9 +151,8 @@ def add_debt():
         creditor = request.form['creditor']
         due_date = request.form['due_date']
         
-        key = b'groot'  # Example key
-        encrypted_amount = encrypt_data(amount, key)
-        encrypted_creditor = encrypt_data(creditor, key)
+        encrypted_amount = encrypt_data(amount)
+        encrypted_creditor = encrypt_data(creditor)
 
         user_id = 1  # Example user_id for testing
         

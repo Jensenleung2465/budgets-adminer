@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Add Debt</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Debt</h1>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount:</label>
+                <input type="number" class="form-control" id="amount" name="amount" required>
+            </div>
+            <div class="mb-3">
+                <label for="creditor" class="form-label">Creditor:</label>
+                <input type="text" class="form-control" id="creditor" name="creditor" required>
+            </div>
+            <div class="mb-3">
+                <label for="due_date" class="form-label">Due Date:</label>
+                <input type="date" class="form-control" id="due_date" name="due_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Debt</button>
+            <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+        </form>
+    </div>
+</body>
+</html>
